@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -40,51 +43,56 @@ public class RedisCacheConfig extends CachingConfigurerSupport implements Lettuc
     }
 
     @Bean
-    @Override
-    public KeyGenerator keyGenerator() {
-
-        return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getName());
-            sb.append(":");
-            sb.append(method.getName());
-            if (ArrayUtils.isNotEmpty(params)) {
-                String collect = Arrays.stream(params).map(x -> x.getClass().getSimpleName()).collect(Collectors.joining(",", "(", ")"));
-                sb.append(collect);
-            }
-            return sb.toString();
-        };
-    }
-
-    @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return lettuceConnectionFactory(redisConfig);
-    }
-
-
-    @Bean
-    @Override
-    public RedisCacheManager cacheManager() {
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(fastJsonRedisSerializer()))
-                .entryTtl(redisConfig.getEntryTtl());
-
-        RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory())
-                .cacheDefaults(redisCacheConfiguration)
-                .transactionAware()
-                .build();
-
-        cacheManager.afterPropertiesSet();
-        LOGGER.info("RedisCacheManager config success!");
-        return cacheManager;
+//        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration("localhost", 6379);
+//        redisStandaloneConfiguration.setPassword(RedisPassword.of("xxx"));
+//        return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
     @Bean
     public RedisTemplate<Serializable, Serializable> redisTemplate() {
         RedisTemplate<Serializable, Serializable> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setStringSerializer(new FastJsonRedisSerializer<>());
         return redisTemplate;
     }
+
+
+    //    @Bean
+//    @Override
+//    public KeyGenerator keyGenerator() {
+//
+//        return (target, method, params) -> {
+//            StringBuilder sb = new StringBuilder();
+//            sb.append(target.getClass().getName());
+//            sb.append(":");
+//            sb.append(method.getName());
+//            if (ArrayUtils.isNotEmpty(params)) {
+//                String collect = Arrays.stream(params).map(x -> x.getClass().getSimpleName()).collect(Collectors.joining(",", "(", ")"));
+//                sb.append(collect);
+//            }
+//            return sb.toString();
+//        };
+//    }
+
+
+//    @Bean
+//    @Override
+//    public RedisCacheManager cacheManager() {
+//        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+//                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+//                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(fastJsonRedisSerializer()))
+//                .entryTtl(redisConfig.getEntryTtl());
+//
+//        RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory())
+//                .cacheDefaults(redisCacheConfiguration)
+//                .transactionAware()
+//                .build();
+//
+//        cacheManager.afterPropertiesSet();
+//        LOGGER.info("RedisCacheManager config success!");
+//        return cacheManager;
+//    }
 
 }

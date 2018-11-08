@@ -21,12 +21,12 @@ public class CacheService {
         this.appleRepository = appleRepository;
     }
 
-    @Cacheable(value = "apple", key = "'apple:id:apple_'+#id")
+//    @Cacheable(value = "apple", key = "'apple:id:apple_'+#id")
     public Apple findById(Long id) {
         return appleRepository.findById(id).orElse(null);
     }
 
-    @CacheEvict(value = "apple", key = "'apple:id:apple_'+#id")
+//    @CacheEvict(value = "apple", key = "'apple:id:apple_'+#id")
     public void dirtyAppleById(Long id) {
     }
 

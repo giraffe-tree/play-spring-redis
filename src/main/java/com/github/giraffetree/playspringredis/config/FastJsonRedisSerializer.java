@@ -23,7 +23,6 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
     }
 
     public FastJsonRedisSerializer() {
-
     }
 
     @Override

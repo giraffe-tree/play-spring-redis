@@ -42,7 +42,8 @@ public interface LettuceConnection {
                 .shutdownTimeout(Duration.ZERO)
                 .build();
         LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(connection(redisConfig), lettuceClientConfiguration);
-        lettuceConnectionFactory.afterPropertiesSet();
+        // 这里有个这句加上之后 netty 会提示 memory leak, 原因未知
+        //  lettuceConnectionFactory.afterPropertiesSet()
 
         System.out.println("lettuce config: \n\t" + poolConfig);
 
