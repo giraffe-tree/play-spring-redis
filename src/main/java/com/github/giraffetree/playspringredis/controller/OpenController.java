@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,10 +81,13 @@ public class OpenController {
             map.put("error", "null key");
             return map;
         }
-        String value= redisService.getByKey(key);
+        String value = redisService.getByKey(key);
         map.put(key, value);
         return map;
     }
 
-
+    @GetMapping("/info")
+    public Serializable getInfo() {
+        return redisService.getInfo();
+    }
 }

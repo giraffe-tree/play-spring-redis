@@ -1,12 +1,16 @@
 package com.github.giraffetree.playspringredis.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +35,22 @@ public class RedisService {
     public void saveKeyAndValue(String key, String value) {
         ValueOperations<Serializable, Serializable> valueOperations = redisTemplate.opsForValue();
         valueOperations.set(key, value);
+    }
+
+    public Serializable getInfo() {
+
+
+        Serializable result = redisTemplate.execute(new RedisCallback<Serializable>() {
+            @Override
+            public Serializable doInRedis(RedisConnection connection) throws DataAccessException {
+                Long aLong = connection.serverCommands().dbSize();
+                Hashtable map = connection.serverCommands().info();
+                connection.close();
+
+                return map;
+            }
+        });
+        return result;
     }
 
     public String getByKey(String key) {
